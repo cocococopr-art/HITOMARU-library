@@ -275,15 +275,54 @@ function parseCSV(text){
 
 /* --- 列名から自動でマッピング(列順が変わっても動く) --- */
 function mapColumns(header){
-  const find=(...keys)=>header.findIndex(h=>keys.some(k=>h.includes(k)));
+  const clean = h => String(h || "").trim();
+
+  const exact = (...names) =>
+    header.findIndex(h => names.includes(clean(h)));
+
+  const includes = (...keys) =>
+    header.findIndex(h => keys.some(k => clean(h).includes(k)));
+
   return {
-    cover:find("表紙","画像"),
-    title:find("題名","タイトル"),
-    point:find("おすすめポイント","ポイント"),
-    url:find("URL","リンク"),
-    cat:find("カテゴリ"),
-    person:find("おすすめした人","人"),
-    must:find("必達")
+    cover:
+      exact("表紙画像URL", "表紙URL", "画像URL", "表紙画像") !== -1
+        ? exact("表紙画像URL", "表紙URL", "画像URL", "表紙画像")
+        : includes("表紙", "画像"),
+
+    title:
+      exact("題名", "タイトル", "本の題名") !== -1
+        ? exact("題名", "タイトル", "本の題名")
+        : includes("題名", "タイトル"),
+
+    point:
+      exact("おすすめポイント", "ポイント", "紹介文") !== -1
+        ? exact("おすすめポイント", "ポイント", "紹介文")
+        : includes("おすすめポイント", "ポイント", "紹介文"),
+
+    // ここが重要：表紙画像URLを除外して、本のリンク用URLだけを拾う
+    url:
+      header.findIndex(h => {
+        const name = clean(h);
+        return (
+          ["URL", "本URL", "リンク", "購入URL", "詳細URL"].includes(name) ||
+          (name.includes("URL") && !name.includes("表紙") && !name.includes("画像"))
+        );
+      }),
+
+    cat:
+      exact("本カテゴリー", "カテゴリー", "カテゴリ") !== -1
+        ? exact("本カテゴリー", "カテゴリー", "カテゴリ")
+        : includes("カテゴリ"),
+
+    person:
+      exact("おすすめした人", "推薦者", "紹介者") !== -1
+        ? exact("おすすめした人", "推薦者", "紹介者")
+        : includes("おすすめした人", "推薦者", "紹介者"),
+
+    must:
+      exact("必達図書", "必達") !== -1
+        ? exact("必達図書", "必達")
+        : includes("必達")
   };
 }
 
@@ -301,7 +340,7 @@ async function load(){
       url:(r[col.url]||"").trim(),
       cat:(r[col.cat]||"").trim()||"未分類",
       person:(r[col.person]||"").trim(),
-      must:col.must>=0&&(r[col.must]||"").trim()!==""
+      must: col.must >= 0 && ["TRUE", "true", "必達", "○", "はい", "1"].includes((r[col.must] || "").trim())
     })).filter(b=>b.title);
     buildChips();
     render();
