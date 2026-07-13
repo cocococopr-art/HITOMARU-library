@@ -1,1013 +1,374 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <title>HITOMARU図書館</title>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Playfair+Display:wght@600;700&display=swap"
-    rel="stylesheet"
-  >
-
-  <style>
-    :root {
-      --bg: #f7f3ec;
-      --paper: #fffdf8;
-      --paper-strong: #ffffff;
-      --wood: #8a623d;
-      --wood-dark: #4c3422;
-      --wood-soft: #d8c3a5;
-      --ink: #2a241f;
-      --muted: #7b7066;
-      --line: rgba(76, 52, 34, 0.14);
-      --wine: #a52a3a;
-      --wine-dark: #7d1e2b;
-      --gold: #b78a48;
-      --shadow: 0 16px 40px rgba(76, 52, 34, 0.12);
-      --radius: 22px;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      color: var(--ink);
-      font-family: "Noto Sans JP", system-ui, sans-serif;
-      background:
-        radial-gradient(circle at 12% 8%, rgba(216, 195, 165, 0.45), transparent 28%),
-        radial-gradient(circle at 88% 0%, rgba(183, 138, 72, 0.18), transparent 30%),
-        linear-gradient(135deg, #fbf7ef 0%, #f4ecdf 48%, #efe2d0 100%);
-    }
-
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      opacity: 0.28;
-      background-image:
-        linear-gradient(90deg, rgba(76, 52, 34, 0.04) 1px, transparent 1px),
-        linear-gradient(rgba(76, 52, 34, 0.035) 1px, transparent 1px);
-      background-size: 42px 42px;
-      mask-image: linear-gradient(to bottom, black, transparent 80%);
-    }
-
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
-
-    .app {
-      position: relative;
-      z-index: 1;
-      width: min(1180px, calc(100% - 28px));
-      margin: 0 auto;
-      padding: 24px 0 64px;
-    }
-
-    .hero {
-      position: relative;
-      overflow: hidden;
-      border-radius: 30px;
-      padding: 30px;
-      background:
-        linear-gradient(135deg, rgba(255, 253, 248, 0.94), rgba(250, 244, 234, 0.92)),
-        radial-gradient(circle at top right, rgba(138, 98, 61, 0.14), transparent 34%);
-      border: 1px solid rgba(76, 52, 34, 0.14);
-      box-shadow: var(--shadow);
-    }
-
-    .hero::before {
-      content: "";
-      position: absolute;
-      right: -120px;
-      top: -120px;
-      width: 330px;
-      height: 330px;
-      border-radius: 999px;
-      background: rgba(216, 195, 165, 0.44);
-    }
-
-    .heroInner {
-      position: relative;
-      z-index: 1;
-    }
-
-    .eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 13px;
-      border-radius: 999px;
-      background: rgba(138, 98, 61, 0.08);
-      border: 1px solid rgba(138, 98, 61, 0.16);
-      color: var(--wood-dark);
-      font-size: 12px;
-      font-weight: 900;
-      letter-spacing: 0.12em;
-    }
-
-    .eyebrow::before {
-      content: "";
-      width: 8px;
-      height: 8px;
-      border-radius: 999px;
-      background: var(--gold);
-    }
-
-    .heroTitle {
-      margin: 18px 0 10px;
-      font-family: "Playfair Display", "Noto Sans JP", serif;
-      font-size: clamp(34px, 6vw, 68px);
-      line-height: 1.02;
-      letter-spacing: -0.04em;
-      color: var(--wood-dark);
-    }
-
-    .heroTitle span {
-      color: var(--wood);
-    }
-
-    .heroLead {
-      max-width: 760px;
-      margin: 0;
-      color: var(--muted);
-      font-size: 15px;
-      line-height: 1.9;
-      font-weight: 500;
-    }
-
-    .toolbar {
-      display: grid;
-      grid-template-columns: 1.3fr 0.7fr;
-      gap: 12px;
-      margin-top: 22px;
-    }
-
-    .search,
-    .select {
-      width: 100%;
-      border: 1px solid rgba(76, 52, 34, 0.15);
-      background: rgba(255, 255, 255, 0.82);
-      color: var(--ink);
-      border-radius: 999px;
-      padding: 15px 18px;
-      font-size: 14px;
-      outline: none;
-      font-family: "Noto Sans JP", sans-serif;
-      box-shadow: 0 8px 22px rgba(76, 52, 34, 0.06);
-    }
-
-    .search::placeholder {
-      color: rgba(123, 112, 102, 0.72);
-    }
-
-    .select {
-      cursor: pointer;
-    }
-
-    .categoryBar {
-      display: flex;
-      gap: 10px;
-      overflow-x: auto;
-      padding: 18px 2px 8px;
-      margin: 12px 0 16px;
-      scrollbar-width: thin;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    .categoryBtn {
-      flex: 0 0 auto;
-      border: 1px solid rgba(76, 52, 34, 0.14);
-      background: rgba(255, 253, 248, 0.88);
-      color: var(--wood-dark);
-      padding: 10px 15px;
-      border-radius: 999px;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 900;
-      transition: 0.18s ease;
-      white-space: nowrap;
-      box-shadow: 0 8px 20px rgba(76, 52, 34, 0.05);
-    }
-
-    .categoryBtn:hover,
-    .categoryBtn.active {
-      background: var(--wood-dark);
-      color: #fff;
-      transform: translateY(-1px);
-    }
-
-    .categoryBtn.required {
-      border-color: rgba(165, 42, 58, 0.28);
-      color: var(--wine);
-      background: rgba(165, 42, 58, 0.08);
-    }
-
-    .categoryBtn.required.active {
-      background: var(--wine);
-      color: #fff;
-    }
-
-    .summary {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-      margin: 18px 0;
-    }
-
-    .summaryCard {
-      border: 1px solid rgba(76, 52, 34, 0.12);
-      background: rgba(255, 253, 248, 0.8);
-      border-radius: 18px;
-      padding: 16px;
-      box-shadow: 0 10px 26px rgba(76, 52, 34, 0.06);
-    }
-
-    .summaryLabel {
-      color: var(--muted);
-      font-size: 11px;
-      font-weight: 900;
-      letter-spacing: 0.08em;
-    }
-
-    .summaryValue {
-      margin-top: 5px;
-      font-family: "Playfair Display", serif;
-      font-size: 28px;
-      font-weight: 700;
-      color: var(--wood-dark);
-    }
-
-    .sectionTitle {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      gap: 16px;
-      margin: 28px 0 16px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid rgba(76, 52, 34, 0.14);
-    }
-
-    .sectionTitle h2 {
-      margin: 0;
-      font-size: 24px;
-      letter-spacing: -0.02em;
-      color: var(--wood-dark);
-    }
-
-    .bookCount {
-      color: var(--muted);
-      font-size: 13px;
-      font-weight: 700;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 16px;
-    }
-
-    .card {
-      position: relative;
-      overflow: hidden;
-      border-radius: var(--radius);
-      background: rgba(255, 253, 248, 0.92);
-      border: 1px solid rgba(76, 52, 34, 0.12);
-      box-shadow: 0 14px 34px rgba(76, 52, 34, 0.1);
-      transition: 0.2s ease;
-      min-height: 100%;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 22px 48px rgba(76, 52, 34, 0.16);
-    }
-
-    .card.required {
-      border-color: rgba(165, 42, 58, 0.38);
-    }
-
-    .requiredBadge {
-      position: absolute;
-      top: 13px;
-      left: 13px;
-      z-index: 3;
-      display: inline-flex;
-      align-items: center;
-      padding: 7px 11px;
-      border-radius: 999px;
-      background: var(--wine);
-      color: #fff;
-      font-size: 12px;
-      font-weight: 900;
-      box-shadow: 0 8px 22px rgba(165, 42, 58, 0.22);
-    }
-
-    .coverArea {
-      height: 255px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px 18px 14px;
-      background:
-        linear-gradient(180deg, rgba(216, 195, 165, 0.26), rgba(255, 253, 248, 0.3));
-      border-bottom: 1px solid rgba(76, 52, 34, 0.08);
-    }
-
-    .cover {
-      width: 140px;
-      height: 208px;
-      object-fit: cover;
-      border-radius: 9px;
-      background: #e6ddd1;
-      box-shadow:
-        0 18px 30px rgba(76, 52, 34, 0.22),
-        -4px 0 0 rgba(0, 0, 0, 0.06) inset;
-    }
-
-    .noImage {
-      width: 140px;
-      height: 208px;
-      border-radius: 9px;
-      display: grid;
-      place-items: center;
-      text-align: center;
-      padding: 14px;
-      color: var(--wood-dark);
-      background:
-        linear-gradient(135deg, #f2e5d1, #d8c3a5);
-      border: 1px solid rgba(76, 52, 34, 0.12);
-      font-weight: 900;
-      line-height: 1.6;
-      box-shadow: 0 18px 30px rgba(76, 52, 34, 0.16);
-    }
-
-    .content {
-      padding: 17px;
-      display: flex;
-      flex-direction: column;
-      gap: 11px;
-      flex: 1;
-    }
-
-    .tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 7px;
-    }
-
-    .tag {
-      display: inline-flex;
-      align-items: center;
-      width: fit-content;
-      max-width: 100%;
-      padding: 6px 9px;
-      border-radius: 999px;
-      background: rgba(138, 98, 61, 0.08);
-      color: var(--wood-dark);
-      font-size: 11px;
-      font-weight: 900;
-      border: 1px solid rgba(138, 98, 61, 0.12);
-    }
-
-    .tag.requiredTag {
-      color: var(--wine);
-      background: rgba(165, 42, 58, 0.08);
-      border-color: rgba(165, 42, 58, 0.18);
-    }
-
-    .title {
-      margin: 0;
-      color: var(--ink);
-      font-size: 17px;
-      line-height: 1.55;
-      letter-spacing: -0.02em;
-    }
-
-    .point {
-      margin: 0;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.75;
-      flex: 1;
-    }
-
-    .recommender {
-      color: var(--wood);
-      font-size: 12px;
-      font-weight: 900;
-    }
-
-    .btn {
-      display: inline-flex;
-      justify-content: center;
-      align-items: center;
-      width: 100%;
-      border-radius: 999px;
-      padding: 12px 14px;
-      margin-top: 2px;
-      background: var(--wood-dark);
-      color: #fff;
-      font-weight: 900;
-      font-size: 13px;
-      transition: 0.18s ease;
-    }
-
-    .btn:hover {
-      background: var(--wood);
-      transform: translateY(-1px);
-    }
-
-    .btn.disabled {
-      opacity: 0.42;
-      pointer-events: none;
-    }
-
-    .loading,
-    .empty,
-    .error {
-      grid-column: 1 / -1;
-      border: 1px dashed rgba(76, 52, 34, 0.2);
-      background: rgba(255, 253, 248, 0.82);
-      border-radius: 22px;
-      padding: 30px 18px;
-      text-align: center;
-      color: var(--muted);
-      line-height: 1.8;
-    }
-
-    .error {
-      color: var(--wine-dark);
-      border-color: rgba(165, 42, 58, 0.28);
-      background: rgba(165, 42, 58, 0.06);
-    }
-
-    @media (max-width: 1000px) {
-      .grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
-
-      .summary {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-
-    @media (max-width: 760px) {
-      .app {
-        width: min(100% - 20px, 1180px);
-        padding-top: 14px;
-        padding-bottom: 44px;
-      }
-
-      .hero {
-        padding: 24px 18px;
-        border-radius: 26px;
-      }
-
-      .heroTitle {
-        font-size: 38px;
-      }
-
-      .heroLead {
-        font-size: 13.5px;
-        line-height: 1.8;
-      }
-
-      .toolbar {
-        grid-template-columns: 1fr;
-        gap: 10px;
-      }
-
-      .search,
-      .select {
-        padding: 14px 15px;
-        font-size: 13px;
-      }
-
-      .summary {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
-      }
-
-      .summaryCard {
-        padding: 13px;
-      }
-
-      .summaryValue {
-        font-size: 24px;
-      }
-
-      .sectionTitle {
-        margin-top: 22px;
-      }
-
-      .sectionTitle h2 {
-        font-size: 21px;
-      }
-
-      .grid {
-        grid-template-columns: 1fr;
-        gap: 13px;
-      }
-
-      .card {
-        display: grid;
-        grid-template-columns: 104px 1fr;
-        min-height: 158px;
-      }
-
-      .coverArea {
-        height: auto;
-        min-height: 158px;
-        padding: 14px 10px;
-        border-bottom: none;
-        border-right: 1px solid rgba(76, 52, 34, 0.08);
-      }
-
-      .cover,
-      .noImage {
-        width: 78px;
-        height: 116px;
-        border-radius: 7px;
-      }
-
-      .noImage {
-        font-size: 10px;
-      }
-
-      .content {
-        padding: 14px 14px 13px;
-        gap: 8px;
-      }
-
-      .requiredBadge {
-        top: 9px;
-        left: 9px;
-        padding: 5px 8px;
-        font-size: 10px;
-      }
-
-      .tag {
-        font-size: 10px;
-        padding: 5px 8px;
-      }
-
-      .title {
-        font-size: 15px;
-        line-height: 1.45;
-      }
-
-      .point {
-        font-size: 12px;
-        line-height: 1.65;
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-      }
-
-      .recommender {
-        font-size: 11px;
-      }
-
-      .btn {
-        padding: 10px 12px;
-        font-size: 12px;
-      }
-    }
-
-    @media (max-width: 430px) {
-      .heroTitle {
-        font-size: 34px;
-      }
-
-      .eyebrow {
-        font-size: 10px;
-      }
-
-      .summary {
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .sectionTitle {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 6px;
-      }
-
-      .bookCount {
-        font-size: 12px;
-      }
-
-      .card {
-        grid-template-columns: 96px 1fr;
-      }
-
-      .cover,
-      .noImage {
-        width: 72px;
-        height: 108px;
-      }
-
-      .content {
-        padding: 13px 12px;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HITOMARU 図書館</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@300;400;500&family=Zen+Kaku+Gothic+New:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --white:#ffffff;
+  --paper:#f7f7f5;
+  --line:#e7e7e4;
+  --ink:#3a3a3a;
+  --ink-soft:#8a8a86;
+  --red:#d3382c;
+  --red-soft:#fdf1ef;
+  --shadow:0 2px 4px rgba(0,0,0,.03),0 12px 28px rgba(0,0,0,.06);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:"Zen Kaku Gothic New",sans-serif;
+  background:var(--paper);
+  color:var(--ink);
+  line-height:1.75;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ===== ヘッダー(細線・広字間のロゴ) ===== */
+header{
+  background:var(--white);
+  border-bottom:1px solid var(--line);
+  padding:64px 24px 44px;
+  text-align:center;
+}
+.tagline{
+  font-family:"Zen Maru Gothic",sans-serif;
+  font-weight:300;
+  font-size:12px;
+  letter-spacing:.5em;
+  color:var(--ink-soft);
+  margin-bottom:18px;
+}
+.logo-en{
+  font-family:"Zen Maru Gothic",sans-serif;
+  font-weight:300;
+  font-size:clamp(22px,4vw,34px);
+  letter-spacing:.55em;
+  text-indent:.55em;
+  color:var(--ink);
+}
+.logo-ja{
+  font-family:"Zen Maru Gothic",sans-serif;
+  font-weight:300;
+  font-size:clamp(34px,7vw,58px);
+  letter-spacing:.35em;
+  text-indent:.35em;
+  margin-top:4px;
+}
+.logo-rule{
+  width:56px;height:1px;background:var(--ink);
+  margin:26px auto 0;opacity:.35;
+}
+
+/* ===== コントロール ===== */
+.controls{
+  max-width:1100px;margin:36px auto 0;padding:0 24px;
+  display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:center;
+}
+.search{
+  flex:1 1 260px;max-width:360px;
+  background:var(--white);border:1px solid var(--line);border-radius:999px;
+  padding:10px 20px;font-family:inherit;font-size:14px;color:var(--ink);
+  outline:none;transition:border-color .2s;
+}
+.search:focus{border-color:var(--ink-soft)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.chip{
+  font-family:"Zen Maru Gothic",sans-serif;font-weight:400;
+  font-size:13px;letter-spacing:.12em;
+  background:var(--white);border:1px solid var(--line);border-radius:999px;
+  padding:7px 18px;cursor:pointer;color:var(--ink-soft);
+  transition:all .2s;
+}
+.chip:hover{border-color:var(--ink-soft);color:var(--ink)}
+.chip.active{background:var(--ink);border-color:var(--ink);color:var(--white)}
+.chip.must{color:var(--red);border-color:#f0c9c4}
+.chip.must.active{background:var(--red);border-color:var(--red);color:var(--white)}
+.count{
+  width:100%;text-align:center;margin-top:14px;
+  font-size:12px;letter-spacing:.3em;color:var(--ink-soft);
+}
+
+/* ===== カードグリッド ===== */
+.grid{
+  max-width:1100px;margin:32px auto 90px;padding:0 24px;
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:24px;
+}
+.card{
+  background:var(--white);border:1px solid var(--line);border-radius:14px;
+  overflow:hidden;box-shadow:var(--shadow);
+  display:flex;flex-direction:column;
+  transition:transform .25s,box-shadow .25s;
+  opacity:0;transform:translateY(14px);
+  animation:rise .5s forwards;
+}
+@keyframes rise{to{opacity:1;transform:translateY(0)}}
+.card:hover{transform:translateY(-4px);box-shadow:0 4px 8px rgba(0,0,0,.04),0 20px 40px rgba(0,0,0,.09)}
+.card.must-read{border:1px solid var(--red)}
+.cover{
+  height:200px;background:var(--paper);
+  display:flex;align-items:center;justify-content:center;overflow:hidden;
+  border-bottom:1px solid var(--line);position:relative;
+}
+.cover img{max-height:170px;max-width:80%;object-fit:contain;box-shadow:0 6px 16px rgba(0,0,0,.15)}
+.cover .noimg{
+  font-family:"Zen Maru Gothic",sans-serif;font-weight:300;
+  letter-spacing:.4em;font-size:11px;color:var(--ink-soft);
+}
+.must-badge{
+  position:absolute;top:10px;left:10px;
+  background:var(--red);color:#fff;
+  font-size:10px;letter-spacing:.25em;
+  padding:4px 10px 4px 12px;border-radius:999px;
+  font-family:"Zen Maru Gothic",sans-serif;
+}
+.body{padding:18px 18px 20px;display:flex;flex-direction:column;gap:10px;flex:1}
+.meta{display:flex;flex-wrap:wrap;gap:6px}
+.cat{
+  font-size:11px;letter-spacing:.15em;color:var(--ink-soft);
+  border:1px solid var(--line);border-radius:999px;padding:2px 10px;
+  background:var(--paper);
+}
+.card.must-read .cat{color:var(--red);border-color:#f0c9c4;background:var(--red-soft)}
+.title{
+  font-family:"Zen Maru Gothic",sans-serif;font-weight:500;
+  font-size:16px;letter-spacing:.06em;line-height:1.5;
+}
+.point{font-size:13px;color:#5c5c58;flex:1}
+.recommender{
+  font-size:11.5px;letter-spacing:.1em;color:var(--ink-soft);
+  border-top:1px dashed var(--line);padding-top:10px;
+}
+.recommender span{color:var(--ink)}
+.link{
+  display:inline-block;margin-top:2px;
+  font-family:"Zen Maru Gothic",sans-serif;font-size:12px;letter-spacing:.25em;
+  color:var(--ink);text-decoration:none;
+  border-bottom:1px solid var(--ink);padding-bottom:2px;
+  align-self:flex-start;transition:opacity .2s;
+}
+.link:hover{opacity:.5}
+.card.must-read .link{color:var(--red);border-color:var(--red)}
+
+/* ===== 状態表示 ===== */
+.status{
+  text-align:center;padding:80px 24px;color:var(--ink-soft);
+  font-size:13px;letter-spacing:.3em;grid-column:1/-1;
+}
+
+footer{
+  border-top:1px solid var(--line);background:var(--white);
+  text-align:center;padding:32px 24px;
+  font-family:"Zen Maru Gothic",sans-serif;font-weight:300;
+  font-size:11px;letter-spacing:.4em;color:var(--ink-soft);
+}
+
+@media (prefers-reduced-motion:reduce){
+  .card{animation:none;opacity:1;transform:none}
+}
+
+/* ===== スマホ最適化 ===== */
+body{overflow-x:hidden}
+.title,.point,.recommender{overflow-wrap:break-word;word-break:break-word}
+
+@media (max-width:640px){
+  header{padding:44px 16px 32px}
+  .tagline{font-size:10px;letter-spacing:.35em}
+  .logo-en{letter-spacing:.4em;text-indent:.4em}
+  .logo-ja{letter-spacing:.25em;text-indent:.25em}
+
+  .controls{padding:0 16px;gap:10px;margin-top:26px}
+  .search{flex:1 1 100%;max-width:none;font-size:16px} /* 16px未満だとiOSでズームされるため */
+
+  /* カテゴリーチップは横スクロールの1行に */
+  .chips{
+    flex-wrap:nowrap;justify-content:flex-start;
+    width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;
+    padding:4px 2px 8px;scrollbar-width:none;
+  }
+  .chips::-webkit-scrollbar{display:none}
+  .chip{flex:0 0 auto;font-size:12px;padding:7px 15px}
+
+  /* 本棚らしい2列グリッド */
+  .grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:12px;padding:0 16px;margin:22px auto 64px;
+  }
+  .cover{height:150px}
+  .cover img{max-height:126px;max-width:86%}
+  .must-badge{top:8px;left:8px;font-size:9px;padding:3px 8px 3px 10px}
+  .body{padding:12px 12px 14px;gap:8px}
+  .title{font-size:13.5px}
+  .point{font-size:11.5px;line-height:1.6}
+  .cat{font-size:10px;padding:2px 8px}
+  .recommender{font-size:10.5px;padding-top:8px}
+  .link{font-size:11px;letter-spacing:.2em}
+  .count{margin-top:6px}
+  footer{padding:24px 16px;letter-spacing:.3em}
+}
+
+@media (max-width:340px){
+  .grid{grid-template-columns:1fr}
+  .cover{height:190px}
+}
+</style>
 </head>
-
 <body>
-  <main class="app">
-    <section class="hero">
-      <div class="heroInner">
-        <div class="eyebrow">COMPANY DIGITAL LIBRARY</div>
 
-        <h1 class="heroTitle">
-          <span>HITOMARU</span>図書館
-        </h1>
+<header>
+  <p class="tagline">本当に読むべき一冊と出会う</p>
+  <div class="logo-en">HITOMARU</div>
+  <div class="logo-ja">図 書 館</div>
+  <div class="logo-rule"></div>
+</header>
 
-        <p class="heroLead">
-          社内で読むべき本・営業に効く本・思考を深める本を集約するデジタル図書館。
-          スプレッドシートを更新するだけで、Webの本棚に自動反映されます。
-        </p>
+<div class="controls">
+  <input class="search" id="search" type="search" placeholder="題名・おすすめした人で検索" aria-label="検索">
+  <div class="chips" id="chips"></div>
+  <p class="count" id="count"></p>
+</div>
 
-        <div class="toolbar">
-          <input
-            id="searchInput"
-            class="search"
-            type="search"
-            placeholder="題名・おすすめポイント・カテゴリー・おすすめした人で検索"
-          >
+<main class="grid" id="grid">
+  <p class="status">読み込み中 …</p>
+</main>
 
-          <select id="personSelect" class="select">
-            <option value="all">おすすめした人：全員</option>
-          </select>
-        </div>
+<footer>HITOMARU LIBRARY</footer>
+
+<script>
+/* ====== 設定:公開したスプレッドシートのCSV URL ======
+   「ウェブに公開」のURL末尾 /pubhtml を /pub?output=csv に変えたものです。
+   シートを更新すると(自動再公開ONなら)ページも自動で最新になります。 */
+const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSP1nykKgEMDTCrqPJUj3UGyDaThtDLQzJUy4qz4zKM-d9IzbuQHkq8xoy0yThAWojES72BTnkAgG5L/pub?output=csv";
+
+let books = [];
+let activeCat = "すべて";
+let mustOnly = false;
+let query = "";
+
+/* --- CSVパーサ(引用符・改行対応) --- */
+function parseCSV(text){
+  const rows=[];let row=[],cell="",inQ=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(inQ){
+      if(c==='"'){ if(text[i+1]==='"'){cell+='"';i++;} else inQ=false; }
+      else cell+=c;
+    }else{
+      if(c==='"') inQ=true;
+      else if(c===','){row.push(cell);cell="";}
+      else if(c==='\n'||c==='\r'){
+        if(c==='\r'&&text[i+1]==='\n')i++;
+        row.push(cell);cell="";
+        if(row.some(v=>v.trim()!==""))rows.push(row);
+        row=[];
+      }else cell+=c;
+    }
+  }
+  row.push(cell);
+  if(row.some(v=>v.trim()!==""))rows.push(row);
+  return rows;
+}
+
+/* --- 列名から自動でマッピング(列順が変わっても動く) --- */
+function mapColumns(header){
+  const find=(...keys)=>header.findIndex(h=>keys.some(k=>h.includes(k)));
+  return {
+    cover:find("表紙","画像"),
+    title:find("題名","タイトル"),
+    point:find("おすすめポイント","ポイント"),
+    url:find("URL","リンク"),
+    cat:find("カテゴリ"),
+    person:find("おすすめした人","人"),
+    must:find("必達")
+  };
+}
+
+async function load(){
+  const grid=document.getElementById("grid");
+  try{
+    const res=await fetch(CSV_URL);
+    if(!res.ok)throw new Error(res.status);
+    const rows=parseCSV(await res.text());
+    const col=mapColumns(rows[0]);
+    books=rows.slice(1).map(r=>({
+      cover:(r[col.cover]||"").trim(),
+      title:(r[col.title]||"").trim(),
+      point:(r[col.point]||"").trim(),
+      url:(r[col.url]||"").trim(),
+      cat:(r[col.cat]||"").trim()||"未分類",
+      person:(r[col.person]||"").trim(),
+      must:col.must>=0&&(r[col.must]||"").trim()!==""
+    })).filter(b=>b.title);
+    buildChips();
+    render();
+  }catch(e){
+    grid.innerHTML='<p class="status">データを読み込めませんでした。スプレッドシートの「ウェブに公開」設定とURLをご確認ください。</p>';
+    console.error(e);
+  }
+}
+
+function buildChips(){
+  const cats=["すべて",...new Set(books.map(b=>b.cat))];
+  const box=document.getElementById("chips");
+  box.innerHTML="";
+  cats.forEach(c=>{
+    const btn=document.createElement("button");
+    btn.className="chip"+(c===activeCat?" active":"");
+    btn.textContent=c;
+    btn.onclick=()=>{activeCat=c;buildChips();render();};
+    box.appendChild(btn);
+  });
+  const must=document.createElement("button");
+  must.className="chip must"+(mustOnly?" active":"");
+  must.textContent="必達図書";
+  must.onclick=()=>{mustOnly=!mustOnly;buildChips();render();};
+  box.appendChild(must);
+}
+
+function render(){
+  const grid=document.getElementById("grid");
+  const list=books.filter(b=>
+    (activeCat==="すべて"||b.cat===activeCat)&&
+    (!mustOnly||b.must)&&
+    (query===""||b.title.includes(query)||b.person.includes(query)||b.point.includes(query))
+  );
+  document.getElementById("count").textContent=`${list.length} 冊`;
+  if(list.length===0){
+    grid.innerHTML='<p class="status">該当する本がありません</p>';
+    return;
+  }
+  grid.innerHTML="";
+  list.forEach((b,i)=>{
+    const card=document.createElement("article");
+    card.className="card"+(b.must?" must-read":"");
+    card.style.animationDelay=(i*40)+"ms";
+    card.innerHTML=`
+      <div class="cover">
+        ${b.must?'<span class="must-badge">必達図書</span>':""}
+        ${b.cover?`<img src="${esc(b.cover)}" alt="${esc(b.title)} の表紙" loading="lazy" onerror="this.outerHTML='<span class=noimg>NO IMAGE</span>'">`:'<span class="noimg">NO IMAGE</span>'}
       </div>
-    </section>
-
-    <div id="categoryBar" class="categoryBar"></div>
-
-    <section class="summary">
-      <div class="summaryCard">
-        <div class="summaryLabel">TOTAL BOOKS</div>
-        <div id="totalCount" class="summaryValue">0</div>
-      </div>
-
-      <div class="summaryCard">
-        <div class="summaryLabel">REQUIRED</div>
-        <div id="requiredCount" class="summaryValue">0</div>
-      </div>
-
-      <div class="summaryCard">
-        <div class="summaryLabel">CATEGORIES</div>
-        <div id="categoryCount" class="summaryValue">0</div>
-      </div>
-
-      <div class="summaryCard">
-        <div class="summaryLabel">RECOMMENDERS</div>
-        <div id="personCount" class="summaryValue">0</div>
-      </div>
-    </section>
-
-    <div class="sectionTitle">
-      <h2 id="currentTitle">すべての本</h2>
-      <div id="bookCount" class="bookCount">読み込み中...</div>
-    </div>
-
-    <section id="bookGrid" class="grid">
-      <div class="loading">スプレッドシートから本棚を読み込んでいます...</div>
-    </section>
-  </main>
-
-  <script>
-    /*
-      ここにGoogleスプレッドシートのCSV公開URLを貼ってください。
-
-      例：
-      const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/xxxxx/pub?gid=0&single=true&output=csv';
-    */
-    const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSP1nykKgEMDTCrqPJUj3UGyDaThtDLQzJUy4qz4zKM-d9IzbuQHkq8xoy0yThAWojES72BTnkAgG5L/pubhtml';
-
-    let allBooks = [];
-    let currentCategory = 'all';
-
-    const grid = document.getElementById('bookGrid');
-    const searchInput = document.getElementById('searchInput');
-    const categoryBar = document.getElementById('categoryBar');
-    const currentTitle = document.getElementById('currentTitle');
-    const bookCount = document.getElementById('bookCount');
-    const personSelect = document.getElementById('personSelect');
-
-    const totalCount = document.getElementById('totalCount');
-    const requiredCount = document.getElementById('requiredCount');
-    const categoryCount = document.getElementById('categoryCount');
-    const personCount = document.getElementById('personCount');
-
-    loadBooks();
-
-    async function loadBooks() {
-      if (!SHEET_CSV_URL || SHEET_CSV_URL === 'ここにCSVのURLを貼る') {
-        showError('CSV公開URLが未設定です。index.html内の SHEET_CSV_URL にスプレッドシートのCSV URLを貼ってください。');
-        return;
-      }
-
-      try {
-        const response = await fetch(SHEET_CSV_URL);
-
-        if (!response.ok) {
-          throw new Error('CSVの取得に失敗しました。');
-        }
-
-        const csvText = await response.text();
-        const rows = parseCSV(csvText);
-
-        if (rows.length < 2) {
-          showError('スプレッドシートに本のデータがありません。');
-          return;
-        }
-
-        const headers = rows[0].map(header => header.trim());
-        const dataRows = rows.slice(1);
-
-        allBooks = dataRows
-          .filter(row => row.some(cell => String(cell || '').trim() !== ''))
-          .map(row => {
-            const item = {};
-
-            headers.forEach((header, index) => {
-              item[header] = row[index] || '';
-            });
-
-            const requiredValue = String(item['必達図書'] || '').trim();
-
-            const isRequired =
-              requiredValue === 'TRUE' ||
-              requiredValue === 'true' ||
-              requiredValue === '必達' ||
-              requiredValue === '○' ||
-              requiredValue === 'はい' ||
-              requiredValue === '1';
-
-            return {
-              image: item['表紙画像URL'] || '',
-              title: item['題名'] || '',
-              point: item['おすすめポイント'] || '',
-              url: item['URL'] || '',
-              category: item['本カテゴリー'] || '未分類',
-              recommender: item['おすすめした人'] || '未記入',
-              required: isRequired
-            };
-          });
-
-        createCategoryButtons();
-        createPersonOptions();
-        updateSummary();
-        renderBooks();
-
-      } catch (error) {
-        console.error(error);
-        showError('読み込みに失敗しました。CSV公開URL・シート公開設定・列名を確認してください。');
-      }
-    }
-
-    function parseCSV(text) {
-      const rows = [];
-      let row = [];
-      let value = '';
-      let insideQuote = false;
-
-      for (let i = 0; i < text.length; i++) {
-        const char = text[i];
-        const nextChar = text[i + 1];
-
-        if (char === '"' && insideQuote && nextChar === '"') {
-          value += '"';
-          i++;
-          continue;
-        }
-
-        if (char === '"') {
-          insideQuote = !insideQuote;
-          continue;
-        }
-
-        if (char === ',' && !insideQuote) {
-          row.push(value);
-          value = '';
-          continue;
-        }
-
-        if ((char === '\n' || char === '\r') && !insideQuote) {
-          if (char === '\r' && nextChar === '\n') {
-            i++;
-          }
-
-          row.push(value);
-          rows.push(row);
-          row = [];
-          value = '';
-          continue;
-        }
-
-        value += char;
-      }
-
-      if (value || row.length > 0) {
-        row.push(value);
-        rows.push(row);
-      }
-
-      return rows;
-    }
-
-    function createCategoryButtons() {
-      const categories = [...new Set(allBooks.map(book => book.category || '未分類'))];
-
-      categoryBar.innerHTML = '';
-
-      const buttons = [
-        { label: 'すべて', value: 'all', required: false },
-        { label: '必達図書', value: 'required', required: true },
-        ...categories.map(category => ({
-          label: category,
-          value: category,
-          required: false
-        }))
-      ];
-
-      buttons.forEach(item => {
-        const btn = document.createElement('button');
-        btn.className = 'categoryBtn';
-
-        if (item.required) {
-          btn.classList.add('required');
-        }
-
-        if (item.value === currentCategory) {
-          btn.classList.add('active');
-        }
-
-        btn.textContent = item.label;
-
-        btn.addEventListener('click', () => {
-          currentCategory = item.value;
-
-          document.querySelectorAll('.categoryBtn').forEach(button => {
-            button.classList.remove('active');
-          });
-
-          btn.classList.add('active');
-          renderBooks();
-        });
-
-        categoryBar.appendChild(btn);
-      });
-    }
-
-    function createPersonOptions() {
-      const people = [...new Set(allBooks.map(book => book.recommender || '未記入'))];
-
-      people.forEach(person => {
-        const option = document.createElement('option');
-        option.value = person;
-        option.textContent = person;
-        personSelect.appendChild(option);
-      });
-    }
-
-    function updateSummary() {
-      const categories = [...new Set(allBooks.map(book => book.category || '未分類'))];
-      const people = [...new Set(allBooks.map(book => book.recommender || '未記入'))];
-      const requiredBooks = allBooks.filter(book => book.required);
-
-      totalCount.textContent = allBooks.length;
-      requiredCount.textContent = requiredBooks.length;
-      categoryCount.textContent = categories.length;
-      personCount.textContent = people.length;
-    }
-
-    function renderBooks() {
-      const keyword = searchInput.value.trim().toLowerCase();
-      const selectedPerson = personSelect.value;
-
-      const filteredBooks = allBooks.filter(book => {
-        const searchTarget = [
-          book.title,
-          book.point,
-          book.category,
-          book.recommender
-        ].join(' ').toLowerCase();
-
-        const matchKeyword = !keyword || searchTarget.includes(keyword);
-
-        const matchCategory =
-          currentCategory === 'all' ||
-          currentCategory === book.category ||
-          (currentCategory === 'required' && book.required);
-
-        const matchPerson =
-          selectedPerson === 'all' ||
-          selectedPerson === book.recommender;
-
-        return matchKeyword && matchCategory && matchPerson;
-      });
-
-      currentTitle.textContent = getCurrentTitle();
-      bookCount.textContent = `${filteredBooks.length}冊表示中 / 全${allBooks.length}冊`;
-
-      grid.innerHTML = '';
-
-      if (filteredBooks.length === 0) {
-        grid.innerHTML = `
-          <div class="empty">
-            条件に合う本がありません。検索ワード・カテゴリー・おすすめした人を変えてみてください。
-          </div>
-        `;
-        return;
-      }
-
-      filteredBooks.forEach(book => {
-        const card = document.createElement('article');
-        card.className = book.required ? 'card required' : 'card';
-
-        const requiredBadge = book.required
-          ? `<div class="requiredBadge">必達図書</div>`
-          : '';
-
-        const imageHtml = book.image
-          ? `<img class="cover" src="${escapeHtml(book.image)}" alt="${escapeHtml(book.title)}" onerror="this.outerHTML='<div class=&quot;noImage&quot;>NO IMAGE<br>画像URLを確認</div>'">`
-          : `<div class="noImage">NO IMAGE<br>画像URL未設定</div>`;
-
-        const requiredTag = book.required
-          ? `<span class="tag requiredTag">必達</span>`
-          : '';
-
-        const linkHtml = book.url
-          ? `<a class="btn" href="${escapeHtml(book.url)}" target="_blank" rel="noopener">詳細を見る</a>`
-          : `<div class="btn disabled">URL未設定</div>`;
-
-        card.innerHTML = `
-          ${requiredBadge}
-
-          <div class="coverArea">
-            ${imageHtml}
-          </div>
-
-          <div class="content">
-            <div class="tags">
-              <span class="tag">${escapeHtml(book.category || '未分類')}</span>
-              ${requiredTag}
-            </div>
-
-            <h3 class="title">${escapeHtml(book.title || '無題')}</h3>
-
-            <p class="point">${escapeHtml(book.point || 'おすすめポイント未記入')}</p>
-
-            <div class="recommender">
-              Recommended by ${escapeHtml(book.recommender || '未記入')}
-            </div>
-
-            ${linkHtml}
-          </div>
-        `;
-
-        grid.appendChild(card);
-      });
-    }
-
-    function getCurrentTitle() {
-      if (currentCategory === 'all') return 'すべての本';
-      if (currentCategory === 'required') return '必達図書';
-      return currentCategory;
-    }
-
-    function showError(message) {
-      grid.innerHTML = `<div class="error">${escapeHtml(message)}</div>`;
-      bookCount.textContent = 'エラー';
-    }
-
-    function escapeHtml(value) {
-      return String(value)
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;')
-        .replaceAll("'", '&#039;');
-    }
-
-    searchInput.addEventListener('input', renderBooks);
-    personSelect.addEventListener('change', renderBooks);
-  </script>
+      <div class="body">
+        <div class="meta"><span class="cat">${esc(b.cat)}</span></div>
+        <h2 class="title">${esc(b.title)}</h2>
+        ${b.point?`<p class="point">${esc(b.point)}</p>`:""}
+        ${b.person?`<p class="recommender">おすすめした人 / <span>${esc(b.person)}</span></p>`:""}
+        ${b.url?`<a class="link" href="${esc(b.url)}" target="_blank" rel="noopener">本を見る →</a>`:""}
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+function esc(s){return s.replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+
+document.getElementById("search").addEventListener("input",e=>{
+  query=e.target.value.trim();render();
+});
+
+load();
+</script>
 </body>
 </html>
