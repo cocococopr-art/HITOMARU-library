@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>HITOAMRU図書館</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800&family=Noto+Sans+JP:wght@400;500;700;900&family=Rajdhani:wght@600;700&display=swap"
+    rel="stylesheet"
+  >
+
+  <style>
+    :root {
+      --bg: #070a12;
+      --panel: rgba(15, 22, 38, 0.72);
+      --panel-strong: rgba(18, 28, 48, 0.92);
+      --line: rgba(111, 231, 255, 0.18);
+      --line-strong: rgba(111, 231, 255, 0.45);
+      --text: #eef7ff;
+      --muted: #9fb1c7;
+      --cyan: #6fe7ff;
+      --blue: #4f7cff;
+      --purple: #9b6bff;
+      --red: #ff3058;
+      --red-soft: rgba(255, 48, 88, 0.16);
+      --gold: #ffd166;
+      --radius: 22px;
+      --shadow: 0 24px 70px rgba(0, 0, 0, 0.42);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: "Noto Sans JP", system-ui, sans-serif;
+      background:
+        radial-gradient(circle at 12% 10%, rgba(79, 124, 255, 0.28), transparent 26%),
+        radial-gradient(circle at 88% 8%, rgba(155, 107, 255, 0.24), transparent 28%),
+        radial-gradient(circle at 50% 100%, rgba(111, 231, 255, 0.14), transparent 35%),
+        linear-gradient(135deg, #05060b 0%, #07101d 48%, #0b1020 100%);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.22;
+      background-image:
+        linear-gradient(rgba(111, 231, 255, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(111, 231, 255, 0.08) 1px, transparent 1px);
+      background-size: 46px 46px;
+      mask-image: linear-gradient(to bottom, black, transparent 78%);
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(
+          to bottom,
+          transparent 0%,
+          rgba(111, 231, 255, 0.035) 50%,
+          transparent 100%
+        );
+      background-size: 100% 7px;
+      mix-blend-mode: screen;
+      opacity: 0.6;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      width: min(1180px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 28px 0 70px;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 34px;
+      padding: 32px;
+      background:
+        linear-gradient(135deg, rgba(14, 22, 39, 0.86), rgba(8, 12, 24, 0.88)),
+        radial-gradient(circle at top right, rgba(111, 231, 255, 0.16), transparent 35%);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      width: 420px;
+      height: 420px;
+      right: -140px;
+      top: -160px;
+      border-radius: 999px;
+      background:
+        radial-gradient(circle, rgba(111, 231, 255, 0.34), transparent 58%);
+      filter: blur(6px);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 16px;
+      border: 1px solid rgba(111, 231, 255, 0.18);
+      border-radius: 24px;
+      pointer-events: none;
+    }
+
+    .heroTop {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: flex-start;
+      margin-bottom: 22px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      width: fit-content;
+      padding: 8px 13px;
+      border-radius: 999px;
+      border: 1px solid rgba(111, 231, 255, 0.24);
+      color: var(--cyan);
+      background: rgba(111, 231, 255, 0.08);
+      font-family: "Rajdhani", "Noto Sans JP", sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .eyebrowDot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--cyan);
+      box-shadow: 0 0 18px var(--cyan);
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 209, 102, 0.24);
+      color: var(--gold);
+      background: rgba(255, 209, 102, 0.08);
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .hero h1 {
+      position: relative;
+      z-index: 2;
+      margin: 0;
+      font-family: "Orbitron", "Noto Sans JP", sans-serif;
+      font-size: clamp(38px, 7.2vw, 82px);
+      line-height: 0.98;
+      letter-spacing: -0.04em;
+      text-transform: uppercase;
+      text-shadow:
+        0 0 20px rgba(111, 231, 255, 0.28),
+        0 0 55px rgba(79, 124, 255, 0.18);
+    }
+
+    .hero h1 .accent {
+      color: var(--cyan);
+    }
+
+    .heroLead {
+      position: relative;
+      z-index: 2;
+      max-width: 760px;
+      margin: 18px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.9;
+      font-weight: 500;
+    }
+
+    .toolbar {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .search,
+    .select {
+      width: 100%;
+      border: 1px solid rgba(111, 231, 255, 0.22);
+      background: rgba(5, 10, 20, 0.72);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 15px 17px;
+      font-size: 14px;
+      outline: none;
+      font-family: "Noto Sans JP", sans-serif;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+    }
+
+    .search::placeholder {
+      color: rgba(159, 177, 199, 0.72);
+    }
+
+    .select {
+      cursor: pointer;
+    }
+
+    .categoryBar {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 18px 2px 8px;
+      margin: 14px 0 18px;
+      scrollbar-width: thin;
+    }
+
+    .categoryBtn {
+      flex: 0 0 auto;
+      border: 1px solid rgba(111, 231, 255, 0.2);
+      background: rgba(15, 22, 38, 0.68);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 800;
+      transition: 0.18s ease;
+      white-space: nowrap;
+    }
+
+    .categoryBtn:hover,
+    .categoryBtn.active {
+      transform: translateY(-1px);
+      color: #06101d;
+      background: var(--cyan);
+      box-shadow: 0 0 22px rgba(111, 231, 255, 0.32);
+    }
+
+    .categoryBtn.required {
+      border-color: rgba(255, 48, 88, 0.42);
+      color: #ff91a5;
+      background: var(--red-soft);
+    }
+
+    .categoryBtn.required.active {
+      color: #fff;
+      background: var(--red);
+      box-shadow: 0 0 24px rgba(255, 48, 88, 0.36);
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin: 18px 0;
+    }
+
+    .summaryCard {
+      border: 1px solid rgba(111, 231, 255, 0.16);
+      background: rgba(15, 22, 38, 0.58);
+      border-radius: 18px;
+      padding: 16px;
+      backdrop-filter: blur(12px);
+    }
+
+    .summaryLabel {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .summaryValue {
+      margin-top: 6px;
+      font-family: "Orbitron", "Noto Sans JP", sans-serif;
+      font-size: 25px;
+      font-weight: 800;
+      color: var(--cyan);
+    }
+
+    .sectionTitle {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 16px;
+      margin: 28px 0 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(111, 231, 255, 0.18);
+    }
+
+    .sectionTitle h2 {
+      margin: 0;
+      font-size: 24px;
+      letter-spacing: -0.02em;
+    }
+
+    .bookCount {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(111, 231, 255, 0.16);
+      border-radius: var(--radius);
+      background:
+        linear-gradient(180deg, rgba(21, 31, 53, 0.88), rgba(8, 12, 24, 0.94));
+      box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
+      transition: 0.22s ease;
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(120deg, transparent 0%, rgba(111, 231, 255, 0.12) 46%, transparent 62%);
+      transform: translateX(-120%);
+      transition: 0.42s ease;
+      pointer-events: none;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      border-color: var(--line-strong);
+      box-shadow:
+        0 24px 58px rgba(0, 0, 0, 0.38),
+        0 0 24px rgba(111, 231, 255, 0.14);
+    }
+
+    .card:hover::before {
+      transform: translateX(120%);
+    }
+
+    .card.required {
+      border-color: rgba(255, 48, 88, 0.62);
+      box-shadow:
+        0 18px 42px rgba(0, 0, 0, 0.28),
+        0 0 22px rgba(255, 48, 88, 0.14);
+    }
+
+    .requiredBadge {
+      position: absolute;
+      top: 13px;
+      left: 13px;
+      z-index: 3;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: var(--red);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 900;
+      box-shadow: 0 0 22px rgba(255, 48, 88, 0.42);
+    }
+
+    .requiredBadge::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #fff;
+      box-shadow: 0 0 12px #fff;
+    }
+
+    .coverArea {
+      height: 260px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 18px 14px;
+      background:
+        radial-gradient(circle at 50% 35%, rgba(111, 231, 255, 0.16), transparent 40%),
+        linear-gradient(135deg, rgba(79, 124, 255, 0.12), rgba(155, 107, 255, 0.08));
+    }
+
+    .cover {
+      width: 142px;
+      height: 210px;
+      object-fit: cover;
+      border-radius: 10px;
+      background: #111827;
+      box-shadow:
+        0 22px 36px rgba(0, 0, 0, 0.42),
+        0 0 0 1px rgba(255, 255, 255, 0.12);
+    }
+
+    .noImage {
+      width: 142px;
+      height: 210px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 14px;
+      color: var(--cyan);
+      font-family: "Orbitron", "Noto Sans JP", sans-serif;
+      font-size: 13px;
+      line-height: 1.6;
+      background:
+        linear-gradient(135deg, rgba(79, 124, 255, 0.34), rgba(155, 107, 255, 0.22));
+      border: 1px solid rgba(111, 231, 255, 0.26);
+      box-shadow: 0 22px 36px rgba(0, 0, 0, 0.42);
+    }
+
+    .content {
+      padding: 17px;
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+      flex: 1;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      max-width: 100%;
+      padding: 6px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(111, 231, 255, 0.18);
+      color: var(--cyan);
+      background: rgba(111, 231, 255, 0.08);
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .tag.requiredTag {
+      border-color: rgba(255, 48, 88, 0.32);
+      color: #ff91a5;
+      background: var(--red-soft);
+    }
+
+    .title {
+      margin: 0;
+      color: #fff;
+      font-size: 17px;
+      line-height: 1.55;
+      letter-spacing: -0.02em;
+    }
+
+    .point {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.75;
+      flex: 1;
+    }
+
+    .recommender {
+      color: rgba(238, 247, 255, 0.78);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .btn {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      border-radius: 999px;
+      padding: 12px 14px;
+      margin-top: 2px;
+      background: linear-gradient(135deg, var(--cyan), var(--blue));
+      color: #06101d;
+      font-weight: 900;
+      font-size: 13px;
+      transition: 0.18s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 22px rgba(111, 231, 255, 0.34);
+    }
+
+    .btn.disabled {
+      opacity: 0.42;
+      pointer-events: none;
+    }
+
+    .loading,
+    .empty,
+    .error {
+      grid-column: 1 / -1;
+      border: 1px dashed rgba(111, 231, 255, 0.28);
+      background: rgba(15, 22, 38, 0.58);
+      border-radius: 22px;
+      padding: 30px 18px;
+      text-align: center;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+
+    .error {
+      color: #ffb3c0;
+      border-color: rgba(255, 48, 88, 0.36);
+      background: rgba(255, 48, 88, 0.08);
+    }
+
+    @media (max-width: 1000px) {
+      .grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .summary {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 760px) {
+      .app {
+        width: min(100% - 20px, 1180px);
+        padding-top: 14px;
+      }
+
+      .hero {
+        padding: 24px 18px;
+        border-radius: 26px;
+      }
+
+      .heroTop {
+        flex-direction: column;
+      }
+
+      .toolbar {
+        grid-template-columns: 1fr;
+      }
+
+      .grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .coverArea {
+        height: 220px;
+      }
+
+      .cover,
+      .noImage {
+        width: 122px;
+        height: 180px;
+      }
+
+      .summaryCard {
+        padding: 13px;
+      }
+
+      .summaryValue {
+        font-size: 22px;
+      }
+    }
+
+    @media (max-width: 460px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .summary {
+        grid-template-columns: 1fr;
+      }
+
+      .sectionTitle {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app">
+    <section class="hero">
+      <div class="heroTop">
+        <div class="eyebrow">
+          <span class="eyebrowDot"></span>
+          COMPANY KNOWLEDGE SYSTEM
+        </div>
+        <div class="status">SPREADSHEET SYNC</div>
+      </div>
+
+      <h1>
+        <span class="accent">HITOAMRU</span>図書館
+      </h1>
+
+      <p class="heroLead">
+        社内で読むべき本・営業に効く本・思考を深める本を集約するデジタル図書館。
+        スプレッドシートを更新するだけで、Webの本棚に自動反映されます。
+      </p>
+
+      <div class="toolbar">
+        <input
+          id="searchInput"
+          class="search"
+          type="search"
+          placeholder="題名・おすすめポイント・カテゴリー・おすすめした人で検索"
+        >
+
+        <select id="personSelect" class="select">
+          <option value="all">おすすめした人：全員</option>
+        </select>
+      </div>
+    </section>
+
+    <div id="categoryBar" class="categoryBar"></div>
+
+    <section class="summary">
+      <div class="summaryCard">
+        <div class="summaryLabel">TOTAL BOOKS</div>
+        <div id="totalCount" class="summaryValue">0</div>
+      </div>
+
+      <div class="summaryCard">
+        <div class="summaryLabel">REQUIRED</div>
+        <div id="requiredCount" class="summaryValue">0</div>
+      </div>
+
+      <div class="summaryCard">
+        <div class="summaryLabel">CATEGORIES</div>
+        <div id="categoryCount" class="summaryValue">0</div>
+      </div>
+
+      <div class="summaryCard">
+        <div class="summaryLabel">RECOMMENDERS</div>
+        <div id="personCount" class="summaryValue">0</div>
+      </div>
+    </section>
+
+    <div class="sectionTitle">
+      <h2 id="currentTitle">すべての本</h2>
+      <div id="bookCount" class="bookCount">読み込み中...</div>
+    </div>
+
+    <section id="bookGrid" class="grid">
+      <div class="loading">スプレッドシートから本棚を読み込んでいます...</div>
+    </section>
+  </main>
+
+  <script>
+    /*
+      ここにGoogleスプレッドシートのCSV公開URLを貼る。
+      例：
+      const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/xxxxx/pub?gid=0&single=true&output=csv';
+    */
+    const SHEET_CSV_URL = 'ここにCSVのURLを貼る';
+
+    let allBooks = [];
+    let currentCategory = 'all';
+
+    const grid = document.getElementById('bookGrid');
+    const searchInput = document.getElementById('searchInput');
+    const categoryBar = document.getElementById('categoryBar');
+    const currentTitle = document.getElementById('currentTitle');
+    const bookCount = document.getElementById('bookCount');
+    const personSelect = document.getElementById('personSelect');
+
+    const totalCount = document.getElementById('totalCount');
+    const requiredCount = document.getElementById('requiredCount');
+    const categoryCount = document.getElementById('categoryCount');
+    const personCount = document.getElementById('personCount');
+
+    loadBooks();
+
+    async function loadBooks() {
+      if (!SHEET_CSV_URL || SHEET_CSV_URL === 'ここにCSVのURLを貼る') {
+        showError('CSV公開URLが未設定です。index.html内の SHEET_CSV_URL にスプレッドシートのCSV URLを貼ってください。');
+        return;
+      }
+
+      try {
+        const response = await fetch(SHEET_CSV_URL);
+
+        if (!response.ok) {
+          throw new Error('CSVの取得に失敗しました。');
+        }
+
+        const csvText = await response.text();
+        const rows = parseCSV(csvText);
+
+        if (rows.length < 2) {
+          showError('スプレッドシートに本のデータがありません。');
+          return;
+        }
+
+        const headers = rows[0].map(header => header.trim());
+        const dataRows = rows.slice(1);
+
+        allBooks = dataRows
+          .filter(row => row.some(cell => String(cell || '').trim() !== ''))
+          .map(row => {
+            const item = {};
+
+            headers.forEach((header, index) => {
+              item[header] = row[index] || '';
+            });
+
+            const requiredValue = String(item['必達図書'] || '').trim();
+
+            const isRequired =
+              requiredValue === 'TRUE' ||
+              requiredValue === 'true' ||
+              requiredValue === '必達' ||
+              requiredValue === '○' ||
+              requiredValue === 'はい' ||
+              requiredValue === '1';
+
+            return {
+              image: item['表紙画像URL'] || '',
+              title: item['題名'] || '',
+              point: item['おすすめポイント'] || '',
+              url: item['URL'] || '',
+              category: item['本カテゴリー'] || '未分類',
+              recommender: item['おすすめした人'] || '未記入',
+              required: isRequired
+            };
+          });
+
+        createCategoryButtons();
+        createPersonOptions();
+        updateSummary();
+        renderBooks();
+
+      } catch (error) {
+        console.error(error);
+        showError('読み込みに失敗しました。CSV公開URL・シート公開設定・列名を確認してください。');
+      }
+    }
+
+    function parseCSV(text) {
+      const rows = [];
+      let row = [];
+      let value = '';
+      let insideQuote = false;
+
+      for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        const nextChar = text[i + 1];
+
+        if (char === '"' && insideQuote && nextChar === '"') {
+          value += '"';
+          i++;
+          continue;
+        }
+
+        if (char === '"') {
+          insideQuote = !insideQuote;
+          continue;
+        }
+
+        if (char === ',' && !insideQuote) {
+          row.push(value);
+          value = '';
+          continue;
+        }
+
+        if ((char === '\n' || char === '\r') && !insideQuote) {
+          if (char === '\r' && nextChar === '\n') {
+            i++;
+          }
+
+          row.push(value);
+          rows.push(row);
+          row = [];
+          value = '';
+          continue;
+        }
+
+        value += char;
+      }
+
+      if (value || row.length > 0) {
+        row.push(value);
+        rows.push(row);
+      }
+
+      return rows;
+    }
+
+    function createCategoryButtons() {
+      const categories = [...new Set(allBooks.map(book => book.category || '未分類'))];
+
+      categoryBar.innerHTML = '';
+
+      const buttons = [
+        { label: 'すべて', value: 'all', required: false },
+        { label: '必達図書', value: 'required', required: true },
+        ...categories.map(category => ({
+          label: category,
+          value: category,
+          required: false
+        }))
+      ];
+
+      buttons.forEach(item => {
+        const btn = document.createElement('button');
+        btn.className = 'categoryBtn';
+
+        if (item.required) {
+          btn.classList.add('required');
+        }
+
+        if (item.value === currentCategory) {
+          btn.classList.add('active');
+        }
+
+        btn.textContent = item.label;
+
+        btn.addEventListener('click', () => {
+          currentCategory = item.value;
+
+          document.querySelectorAll('.categoryBtn').forEach(button => {
+            button.classList.remove('active');
+          });
+
+          btn.classList.add('active');
+          renderBooks();
+        });
+
+        categoryBar.appendChild(btn);
+      });
+    }
+
+    function createPersonOptions() {
+      const people = [...new Set(allBooks.map(book => book.recommender || '未記入'))];
+
+      people.forEach(person => {
+        const option = document.createElement('option');
+        option.value = person;
+        option.textContent = person;
+        personSelect.appendChild(option);
+      });
+    }
+
+    function updateSummary() {
+      const categories = [...new Set(allBooks.map(book => book.category || '未分類'))];
+      const people = [...new Set(allBooks.map(book => book.recommender || '未記入'))];
+      const requiredBooks = allBooks.filter(book => book.required);
+
+      totalCount.textContent = allBooks.length;
+      requiredCount.textContent = requiredBooks.length;
+      categoryCount.textContent = categories.length;
+      personCount.textContent = people.length;
+    }
+
+    function renderBooks() {
+      const keyword = searchInput.value.trim().toLowerCase();
+      const selectedPerson = personSelect.value;
+
+      const filteredBooks = allBooks.filter(book => {
+        const searchTarget = [
+          book.title,
+          book.point,
+          book.category,
+          book.recommender
+        ].join(' ').toLowerCase();
+
+        const matchKeyword = !keyword || searchTarget.includes(keyword);
+
+        const matchCategory =
+          currentCategory === 'all' ||
+          currentCategory === book.category ||
+          (currentCategory === 'required' && book.required);
+
+        const matchPerson =
+          selectedPerson === 'all' ||
+          selectedPerson === book.recommender;
+
+        return matchKeyword && matchCategory && matchPerson;
+      });
+
+      currentTitle.textContent = getCurrentTitle();
+      bookCount.textContent = `${filteredBooks.length}冊表示中 / 全${allBooks.length}冊`;
+
+      grid.innerHTML = '';
+
+      if (filteredBooks.length === 0) {
+        grid.innerHTML = `
+          <div class="empty">
+            条件に合う本がありません。検索ワード・カテゴリー・おすすめした人を変えてみてください。
+          </div>
+        `;
+        return;
+      }
+
+      filteredBooks.forEach(book => {
+        const card = document.createElement('article');
+        card.className = book.required ? 'card required' : 'card';
+
+        const requiredBadge = book.required
+          ? `<div class="requiredBadge">必達図書</div>`
+          : '';
+
+        const imageHtml = book.image
+          ? `<img class="cover" src="${escapeHtml(book.image)}" alt="${escapeHtml(book.title)}" onerror="this.outerHTML='<div class=&quot;noImage&quot;>NO IMAGE<br>画像URLを確認</div>'">`
+          : `<div class="noImage">NO IMAGE<br>画像URL未設定</div>`;
+
+        const requiredTag = book.required
+          ? `<span class="tag requiredTag">REQUIRED</span>`
+          : '';
+
+        const linkHtml = book.url
+          ? `<a class="btn" href="${escapeHtml(book.url)}" target="_blank" rel="noopener">詳細を見る</a>`
+          : `<div class="btn disabled">URL未設定</div>`;
+
+        card.innerHTML = `
+          ${requiredBadge}
+
+          <div class="coverArea">
+            ${imageHtml}
+          </div>
+
+          <div class="content">
+            <div class="tags">
+              <span class="tag">${escapeHtml(book.category || '未分類')}</span>
+              ${requiredTag}
+            </div>
+
+            <h3 class="title">${escapeHtml(book.title || '無題')}</h3>
+
+            <p class="point">${escapeHtml(book.point || 'おすすめポイント未記入')}</p>
+
+            <div class="recommender">
+              Recommended by ${escapeHtml(book.recommender || '未記入')}
+            </div>
+
+            ${linkHtml}
+          </div>
+        `;
+
+        grid.appendChild(card);
+      });
+    }
+
+    function getCurrentTitle() {
+      if (currentCategory === 'all') return 'すべての本';
+      if (currentCategory === 'required') return '必達図書';
+      return currentCategory;
+    }
+
+    function showError(message) {
+      grid.innerHTML = `<div class="error">${escapeHtml(message)}</div>`;
+      bookCount.textContent = 'エラー';
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    searchInput.addEventListener('input', renderBooks);
+    personSelect.addEventListener('change', renderBooks);
+  </script>
+</body>
+</html>
